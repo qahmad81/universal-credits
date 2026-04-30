@@ -11,18 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('client_tokens', function (Blueprint $table) {
+        Schema::create('payment_methods', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id();
-            $table->foreignId('user_id')->indexed()->constrained()->onDelete('cascade');
-            $table->string('token_hash', 64)->unique()->index();
+            $table->string('slug')->unique();
             $table->string('name');
-            $table->bigInteger('limit_balance')->unsigned();
-            $table->bigInteger('final_balance')->unsigned()->default(0);
-            $table->bigInteger('pending_balance')->unsigned()->default(0);
             $table->boolean('is_active')->default(true);
+            $table->json('config')->nullable();
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('client_tokens');
+        Schema::dropIfExists('payment_methods');
     }
 };

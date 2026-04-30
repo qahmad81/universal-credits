@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('client_balances', function (Blueprint $table) {
+        Schema::create('site_settings', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
-            $table->bigInteger('final_balance')->unsigned()->default(0);
-            $table->bigInteger('pending_balance')->unsigned()->default(0);
+            $table->string('key')->unique()->index();
+            $table->longText('value')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('client_balances');
+        Schema::dropIfExists('site_settings');
     }
 };

@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
+        'is_active',
+        'phone',
     ];
 
     /**
@@ -43,6 +46,28 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function clientBalance()
+    {
+        return $this->hasOne(ClientBalance::class);
+    }
+
+    public function clientTokens()
+    {
+        return $this->hasMany(ClientToken::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function pendingPayments()
+    {
+        return $this->hasMany(PendingPayment::class);
     }
 }

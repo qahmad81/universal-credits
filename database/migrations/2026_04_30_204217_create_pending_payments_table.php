@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pending_payments', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->id();
-            $table->timestamps();
+            $table->foreignId('client_token_id')->indexed()->constrained()->onDelete('cascade');
+            $table->foreignId('vendor_token_id')->indexed()->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->indexed()->constrained()->onDelete('cascade');
+            $table->bigInteger('amount')->unsigned();
+            $table->timestamp('expires_at')->indexed();
+            $table->timestamp('created_at')->nullable();
+            $table->text('notes')->nullable();
         });
     }
 
