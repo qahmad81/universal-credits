@@ -19,6 +19,10 @@ class ClientToken extends Model
         'is_active',
     ];
 
+    protected $hidden = [
+        'token_hash',
+    ];
+
     protected $casts = [
         'is_active' => 'boolean',
         'limit_balance' => 'integer',

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\ConfirmRequest;
+use App\Http\Requests\Api\V1\CancelRequest;
 use App\Services\ReservationService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
 
 class SettlementController extends Controller
 {
@@ -17,14 +19,9 @@ class SettlementController extends Controller
         $this->reservationService = $reservationService;
     }
 
-    public function confirm(Request $request): JsonResponse
+    public function confirm(ConfirmRequest $request): JsonResponse
     {
         $vendorToken = $request->attributes->get('vendor_token');
-        
-        $request->validate([
-            'reservation_id' => 'required|integer',
-            'actual_amount' => 'required|numeric|min:0',
-        ]);
 
         try {
             $result = $this->reservationService->confirm(
@@ -36,18 +33,14 @@ class SettlementController extends Controller
             return response()->json($result, 200);
         } catch (HttpException $e) {
             return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             return response()->json(['message' => 'Internal server error: ' . $e->getMessage()], 500);
         }
     }
 
-    public function cancel(Request $request): JsonResponse
+    public function cancel(CancelRequest $request): JsonResponse
     {
         $vendorToken = $request->attributes->get('vendor_token');
-
-        $request->validate([
-            'reservation_id' => 'required|integer',
-        ]);
 
         try {
             $result = $this->reservationService->cancel(
@@ -58,7 +51,7 @@ class SettlementController extends Controller
             return response()->json($result, 200);
         } catch (HttpException $e) {
             return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             return response()->json(['message' => 'Internal server error: ' . $e->getMessage()], 500);
         }
     }

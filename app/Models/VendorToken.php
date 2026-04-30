@@ -19,6 +19,10 @@ class VendorToken extends Model
         'webhook_url',
     ];
 
+    protected $hidden = [
+        'token_hash',
+    ];
+
     protected $casts = [
         'is_active' => 'boolean',
         'rate_limit_per_minute' => 'integer',

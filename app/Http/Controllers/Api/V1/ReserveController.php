@@ -8,6 +8,7 @@ use App\Services\ReservationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
 
 class ReserveController extends Controller
 {
@@ -44,8 +45,8 @@ class ReserveController extends Controller
             return response()->json($result, 200);
         } catch (HttpException $e) {
             return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Internal server error'], 500);
+        } catch (Throwable $e) {
+            return response()->json(['message' => 'Internal server error: ' . $e->getMessage()], 500);
         }
     }
 }

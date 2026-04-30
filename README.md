@@ -1,66 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Universal Credits
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Tests Passing](https://img.shields.io/badge/tests-passing-brightgreen)
 
-## About Laravel
+Open-source unified payment layer for microservices. Universal Credits provides a robust, token-based microtransaction system allowing multiple vendors to reserve and confirm payments from a client's unified balance.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Microtransactions**: Precise balance management with unit-based arithmetic to prevent rounding errors.
+- **Token-based Auth**: Secure vendor and client tokens for API access.
+- **Multi-vendor Support**: Designed for ecosystems where multiple services charge against a single user balance.
+- **Admin Panel**: Comprehensive Filament-powered management interface.
+- **Client Dashboard**: User-friendly dashboard for managing tokens, top-ups, and transaction history.
+- **Security Hardened**: Rate limiting, SHA-256 token hashing, and mass assignment protection.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
 
-## Learning Laravel
+- PHP 8.2+
+- MySQL 5.7+
+- Composer
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Installation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/awda-it/universal-credits.git
+   cd universal-credits
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. **Install dependencies**:
+   ```bash
+   composer install
+   npm install
+   npm run build
+   ```
 
-## Laravel Sponsors
+3. **Configure environment**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   *Update `.env` with your database credentials.*
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. **Initialize database**:
+   ```bash
+   php artisan migrate --seed
+   ```
 
-### Premium Partners
+5. **Serve the application**:
+   ```bash
+   php artisan serve
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Default Admin
+
+Access the admin panel at `/admin`:
+- **Email**: `admin@uc.local`
+- **Password**: `password`
+
+## API Quick Start
+
+### 1. Reserve Credits
+```bash
+POST /api/v1/reserve
+Authorization: Bearer <vendor_token>
+{
+    "client_token": "ct_...",
+    "amount": 10.00,
+    "description": "Coffee purchase"
+}
+```
+
+### 2. Confirm Payment
+```bash
+POST /api/v1/confirm
+Authorization: Bearer <vendor_token>
+{
+    "reservation_id": 123,
+    "actual_amount": 8.50
+}
+```
+
+Full API documentation available at `/docs`.
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Brief guidelines:
+1. Fork the repository.
+2. Create your feature branch.
+3. Ensure all tests pass.
+4. Submit a pull request.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License - Copyright (c) 2024 Awda IT
