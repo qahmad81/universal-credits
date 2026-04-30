@@ -13,6 +13,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::post('/tokens', [DashboardController::class, 'createToken'])->name('tokens.create');
     Route::post('/tokens/{id}/deactivate', [DashboardController::class, 'deactivateToken'])->name('tokens.deactivate');
+
+    // Top-up
+    Route::get('/topup', [\App\Http\Controllers\Client\TopupController::class, 'index'])->name('topup.index');
+    Route::get('/topup/manual', [\App\Http\Controllers\Client\TopupController::class, 'manual'])->name('topup.manual');
+    Route::post('/topup/manual', [\App\Http\Controllers\Client\TopupController::class, 'storeManual'])->name('topup.manual.store');
+    Route::get('/topup/stripe', [\App\Http\Controllers\Client\TopupController::class, 'stripe'])->name('topup.stripe');
+    Route::post('/topup/stripe', [\App\Http\Controllers\Client\TopupController::class, 'storeStripe'])->name('topup.stripe.store');
+    Route::get('/topup/stripe/success', [\App\Http\Controllers\Client\TopupController::class, 'stripeSuccess'])->name('topup.stripe.success');
+    Route::get('/topup/stripe/cancel', [\App\Http\Controllers\Client\TopupController::class, 'stripeCancel'])->name('topup.stripe.cancel');
+    Route::get('/topup/crypto', [\App\Http\Controllers\Client\TopupController::class, 'crypto'])->name('topup.crypto');
 });
 
 Route::middleware('auth')->group(function () {

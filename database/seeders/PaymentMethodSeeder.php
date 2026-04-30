@@ -17,16 +17,22 @@ class PaymentMethodSeeder extends Seeder
                 'slug' => 'manual_transfer',
                 'name' => 'Manual Bank Transfer',
                 'is_active' => true,
+                'config' => [
+                    'bank_name' => 'Universal Bank',
+                    'account_number' => '1234567890',
+                    'account_holder' => 'Universal Credits Ltd',
+                    'reference_instructions' => 'Include your Username in transfer description',
+                ],
             ],
             [
                 'slug' => 'stripe',
-                'name' => 'Stripe',
-                'is_active' => false,
+                'name' => 'Stripe (Credit Card)',
+                'is_active' => true,
             ],
             [
                 'slug' => 'crypto',
                 'name' => 'Cryptocurrency',
-                'is_active' => false,
+                'is_active' => true,
             ],
         ];
 
