@@ -13,9 +13,10 @@ class PendingPayment extends Model
         'vendor_token_id',
         'user_id',
         'amount',
+        'status',
         'expires_at',
         'created_at',
-        'notes',
+        'description',
     ];
 
     protected $casts = [
