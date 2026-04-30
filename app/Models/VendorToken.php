@@ -10,6 +10,7 @@ class VendorToken extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'token_hash',
         'name',
         'description',

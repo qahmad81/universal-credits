@@ -90,4 +90,120 @@ class ReservationService
             throw new HttpException(402, 'Token limit reached');
         }
     }
+
+    public function confirm(VendorToken $vendorToken, int $reservationId, float $actualAmount)
+    {
+        $actualAmountDb = UCMask::toDb($actualAmount);
+
+        return DB::transaction(function () use ($vendorToken, $reservationId, $actualAmountDb, $actualAmount) {
+            $pendingPayment = PendingPayment::where('id', $reservationId)
+                ->where('vendor_token_id', $vendorToken->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$pendingPayment) {
+                throw new HttpException(404, 'Reservation not found');
+            }
+
+            if ($pendingPayment->status !== 'pending') {
+                throw new HttpException(409, 'Reservation is already ' . $pendingPayment->status);
+            }
+
+            if ($pendingPayment->expires_at->isPast()) {
+                throw new HttpException(410, 'Reservation expired');
+            }
+
+            $warning = null;
+            $chargedAmountDb = $actualAmountDb;
+            if ($chargedAmountDb > $pendingPayment->amount) {
+                $chargedAmountDb = $pendingPayment->amount;
+                $warning = 'Actual amount exceeded reserved amount; capped at ' . UCMask::fromDb($pendingPayment->amount);
+            }
+
+            $refundDb = $pendingPayment->amount - $chargedAmountDb;
+
+            // Lock balances and tokens
+            $clientToken = ClientToken::where('id', $pendingPayment->client_token_id)->lockForUpdate()->first();
+            $clientBalance = ClientBalance::where('user_id', $pendingPayment->user_id)->lockForUpdate()->first();
+
+            $oldFinalBalance = $clientBalance->final_balance;
+
+            // Update client_balances
+            $clientBalance->increment('pending_balance', $refundDb);
+            $clientBalance->decrement('final_balance', $chargedAmountDb);
+
+            // Update client_tokens
+            $clientToken->decrement('pending_balance', $pendingPayment->amount);
+            $clientToken->increment('final_balance', $chargedAmountDb);
+
+            $pendingPayment->update(['status' => 'confirmed']);
+
+            Transaction::create([
+                'user_id' => $pendingPayment->user_id,
+                'vendor_token_id' => $vendorToken->id,
+                'client_token_id' => $pendingPayment->client_token_id,
+                'pending_payment_id' => $pendingPayment->id,
+                'type' => 'confirm',
+                'amount' => $chargedAmountDb,
+                'balance_before' => $oldFinalBalance,
+                'balance_after' => $oldFinalBalance - $chargedAmountDb,
+            ]);
+
+            return [
+                'success' => true,
+                'amount_charged' => UCMask::fromDb($chargedAmountDb),
+                'refunded' => UCMask::fromDb($refundDb),
+                'warning' => $warning,
+            ];
+        });
+    }
+
+    public function cancel(VendorToken $vendorToken, int $reservationId)
+    {
+        return DB::transaction(function () use ($vendorToken, $reservationId) {
+            $pendingPayment = PendingPayment::where('id', $reservationId)
+                ->where('vendor_token_id', $vendorToken->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$pendingPayment) {
+                throw new HttpException(404, 'Reservation not found');
+            }
+
+            if ($pendingPayment->status !== 'pending') {
+                throw new HttpException(409, 'Reservation is already ' . $pendingPayment->status);
+            }
+
+            if ($pendingPayment->expires_at->isPast()) {
+                throw new HttpException(410, 'Reservation expired');
+            }
+
+            // Lock balances and tokens
+            $clientToken = ClientToken::where('id', $pendingPayment->client_token_id)->lockForUpdate()->first();
+            $clientBalance = ClientBalance::where('user_id', $pendingPayment->user_id)->lockForUpdate()->first();
+
+            // Update balances
+            $clientBalance->increment('pending_balance', $pendingPayment->amount);
+            $clientToken->decrement('pending_balance', $pendingPayment->amount);
+
+            $pendingPayment->update(['status' => 'cancelled']);
+
+            Transaction::create([
+                'user_id' => $pendingPayment->user_id,
+                'vendor_token_id' => $vendorToken->id,
+                'client_token_id' => $pendingPayment->client_token_id,
+                'pending_payment_id' => $pendingPayment->id,
+                'type' => 'cancel',
+                'amount' => $pendingPayment->amount,
+                'balance_before' => $clientBalance->final_balance,
+                'balance_after' => $clientBalance->final_balance,
+                'description' => 'Reservation cancelled',
+            ]);
+
+            return [
+                'success' => true,
+                'amount_refunded' => UCMask::fromDb($pendingPayment->amount),
+            ];
+        });
+    }
 }
