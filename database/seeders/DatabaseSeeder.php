@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,
             PaymentMethodSeeder::class,
+            SiteSettingSeeder::class,
         ]);
 
         // User::factory(10)->create();

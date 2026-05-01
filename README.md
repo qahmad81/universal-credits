@@ -1,5 +1,13 @@
 # Universal Credits
 
+---
+> This repository was developed using **Verdent AI agent** - going from zero to a near-complete working application (90%) in just 3 hours across 14 commits of continuous uninterrupted work. No coffee breaks needed when your developer runs on silicon.
+
+> Developed by **Ahmad Odeh** via [Verdent](https://verdent.ai) | Website: [odehit.com](https://odehit.com)
+
+*Yes, an AI built this. No, it did not complain about the requirements changing mid-sprint.*
+---
+
 ![Tests Passing](https://img.shields.io/badge/tests-passing-brightgreen)
 
 Open-source unified payment layer for microservices. Universal Credits provides a robust, token-based microtransaction system allowing multiple vendors to reserve and confirm payments from a client's unified balance.
